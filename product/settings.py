@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,16 +86,47 @@ WSGI_APPLICATION = 'product.wsgi.application'
 # }
 
 #Create MySql Server from now 
-DATABASES = {
-    'default':{
-        'ENGINE':'django.db.backends.mysql',
-        'NAME':'django product api',
-        'USER':'root',
-        'PASSWORD':'',
-        'HOST':'localhost',
-        'PORT':'3306'
-    }
+# DATABASES = {
+#     'default':{
+#         'ENGINE':'django.db.backends.mysql',
+#         'NAME':'django product api',
+#         'USER':'root',
+#         'PASSWORD':'',
+#         'HOST':'localhost',
+#         'PORT':'3306'
+#     }
+# }
+
+#database config for cloud upload 
+import json
+
+db_config = {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'django product api',
+    'USER': 'root',
+    'PASSWORD': '',
+    'HOST': 'localhost',
+    'PORT': '3306'
 }
+
+rendered_db_config = json.dumps(db_config)
+os.environ['DATABASES_DEFAULT'] = rendered_db_config
+
+
+rendered_db_config = os.environ.get('DATABASES_DEFAULT', '')
+if rendered_db_config:
+    db_config = json.loads(rendered_db_config)
+    DATABASES = {
+        'default': db_config
+    }
+else:
+    # Default database configuration
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
